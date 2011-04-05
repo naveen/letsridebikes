@@ -1,7 +1,8 @@
 let's ride bikes.
 
-known issues:
+todo list:
 
+- make link jump not just to venue but the specific tip added to their list
 - only shows 500 friends
 - can't get alphabetize sort to work on that assoc array (grr JS!)
 - show things on a map
