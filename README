@@ -1,0 +1,9 @@
+let's ride bikes.
+
+known issues:
+
+- only shows 500 friends
+- can't get alphabetize sort to work on that assoc array (grr JS!)
+- show things on a map
+- show an add to 4sq button for the ones that i don't have in my list
+

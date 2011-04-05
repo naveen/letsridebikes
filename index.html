@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html> 
+<head> 
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js" type="text/javascript"></script> 
+<script src="scripts/jquery.ba-bbq.js" type="text/javascript"></script>
+<script src="scripts/apisamples.js" type="text/javascript"></script>
+<script type="text/javascript"> 
+//<![CDATA[
+ 
+/**
+ * app to show todo overlap with another user
+ */
+function Overlap(apiKey, authUrl, apiUrl) {
+  this.foursquare = new Foursquare(apiKey, authUrl, apiUrl);
+}
+ 
+/**
+ * Fetch needed user data, rendering once we have both responses.
+ */
+Overlap.prototype.run = function() {
+	this.foursquare.friends(bind(this.onFriends, this));
+}
+
+Overlap.prototype.onFriends = function(_friends) {
+	this.friends = {};
+	for (var f in _friends) {
+		this.friends[_friends[f]['id']] = _friends[f];
+	}
+	this.draw();
+}
+
+/** grr! can't figure this one out */
+function alpha(a, b) {
+	if (a['firstName'].toLowerCase() < b['firstName'].toLowerCase()) {
+		return -1;
+	} else if (a['firstName'].toLowerCase() > b['firstName'].toLowerCase()) {
+		return 1;
+	}
+
+	return 0;
+}
+ 
+Overlap.prototype.choose = function(uid) {
+	chosen = this.friends[uid]['firstName'];
+	this.foursquare.todos(bind(this.onTodos, this));
+	this.foursquare.userTodos('' + uid, bind(this.onFriendTodos, this));
+}
+
+Overlap.prototype.onFriendTodos = function(incomingTodos) {
+	this.friendTodos = {};
+	for (var i = 0; i < incomingTodos.length; i++) {
+		var todo = incomingTodos[i]['tip']['venue'];
+		this.friendTodos[todo['id']] = todo;
+	}
+	this.draw();
+}
+ 
+Overlap.prototype.onTodos = function(incomingTodos) {
+  this.todos = {};
+  for (var i = 0; i < incomingTodos.length; i++) {
+    var todo = incomingTodos[i]['tip']['venue'];
+		this.todos[todo['id']] = todo;
+  }
+  this.draw();
+}
+
+/**
+ * render
+ * @private
+ */
+Overlap.prototype.draw = function() {
+  var beenToCount = 0, fhtml = ['<table>'], html = ['<table>'], now = (new Date()).getTime();
+	var yesdata = '';
+	var otherdata = '';
+	var size = overlapSize = 0;
+	var fsize = 0;
+
+	if (!this.friends) {
+    return;
+  } else {
+
+		for (var f in this.friends) {
+			fsize++;
+
+			fhtml.push('<tr><td class="friend"><a href="javascript:void(0);" onclick="o.choose(' + this.friends[f]['id'] + ');">' + this.friends[f]['firstName']);
+			if (this.friends[f]['lastName']) {
+				fhtml.push(' ' + this.friends[f]['lastName']);
+			}
+			fhtml.push('</a></td></tr>');
+		}
+
+		fhtml.push('</table><br/><span class="count">(You only have ' + fsize + ' friends.)</span>');
+	}
+
+	if (!this.friendTodos || !this.todos) {
+  	$('#friends').html(fhtml.join(''));
+		return;
+	}
+
+	html.push('<table>');
+
+	for (var t in this.friendTodos)  {
+		size++;
+		if (this.todos[t]) {
+			overlapSize++;
+    	yesdata += '<tr><td class="place"><a target="_new" href="http://foursquare.com/venue/'+ t+ '">'+ this.friendTodos[t]['name']+ ' &#8594;</a></td><td>yes, go!</td></tr>';
+		} else {
+    	otherdata += '<tr><td class="place"><a target="_new" href="http://foursquare.com/venue/'+ t+ '">'+ this.friendTodos[t]['name']+ ' &#8594;</a></td><td>';
+			otherdata += '<iframe src="http://foursquare.com/button.html?vid=' + this.friendTodos[t]['id'] + '&color=light" allowtransparency="true" frameborder="0" scrolling="no" style="width:165px; height:25px;"></iframe>';
+			otherdata += '</td></tr>';
+		}
+
+	}
+
+	html.push(yesdata);
+	html.push(otherdata);
+
+	html.push('</table>');
+	summary = chosen + ' has ' + size + ' To-Dos';
+	if (overlapSize > 0) { summary += ' and you two have ' + overlapSize + ' in common'; }
+  $('#content').html(html.join(''));
+  $('#summary').html(summary + '');
+
+}
+//]]>
+ 
+$(function() {
+	this.o = new Overlap('K5HJ04CSP3FBVYO1SDP24OE4BDBDWITT1FWIYPFOLB4J23R0', 'http://foursquare.com/', 'https://api.foursquare.com/');
+	this.o.run();
+	this.chosen = '';
+})
+</script> 
+<link href="styles/web.css" type="text/css" rel="stylesheet" /> 
+ 
+</head> 
+<body> 
+<div id="header">
+	let's ride bikes.&#0153;<span style="float: right"><img src="letsridebikes.png"/>
+</div>
+<div style="width: 200px; float: left; height: 500px; overflow-y: scroll" id="friends"></div>
+<div style="float: left">
+	<div style="margin-top: 10px; margin-left: 10px;" id="summary"></div>
+	<div style="margin-top: 10px; margin-left: 10px; margin-bottom: 50px" id="content"></div> 
+</div>
+<div id="footer">naveen 20110405.</div>
+ 
+</body> 
+</html>  
