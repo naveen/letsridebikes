@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?> 
- 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
 <html> 
 <head> 
@@ -127,7 +125,7 @@ Overlap.prototype.draw = function() {
 //]]>
  
 $(function() {
-	this.o = new Overlap('K5HJ04CSP3FBVYO1SDP24OE4BDBDWITT1FWIYPFOLB4J23R0', 'http://foursquare.com/', 'https://api.foursquare.com/');
+	this.o = new Overlap('51ST03B55ASPFIBWLJU51HBKEHVZZEDGMLFGUZQTGTYCCQQL', 'http://foursquare.com/', 'https://api.foursquare.com/');
 	this.o.run();
 	this.chosen = '';
 })
